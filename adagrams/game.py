@@ -14,8 +14,14 @@ def draw_letters():
     letters = []
 
     for letter in range(10):
-        letters.append(letter_pool[randint(0, 104)])
+        letters.append(letter_pool[randint(0, 97)])
     
+    index = 0
+    for letter in letters:
+        if letters.count(letter) > letter_pool.count(letter):
+            letters[index] = letter_pool[randint(0, 97)]
+        index += 1
+
     return letters
 
 def uses_available_letters(word, letter_bank):
