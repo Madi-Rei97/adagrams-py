@@ -25,7 +25,18 @@ def draw_letters():
     return letters
 
 def uses_available_letters(word, letter_bank):
-    pass
+    word_all_caps = word.upper()
+    word_as_list = []
+    for letter in word_all_caps:
+        word_as_list.append(letter)
+
+    for letter in word_as_list:
+        is_valid_word = True
+        if not (letter in letter_bank) or not (letter_bank.count(letter) <= 
+                    word_as_list.count(letter) <= letter_bank.count(letter)):
+            is_valid_word = False
+    
+    return is_valid_word
 
 def score_word(word):
     pass
