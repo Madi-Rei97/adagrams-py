@@ -1,14 +1,53 @@
 from random import randint
 
-LETTER_POOL = ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'C', 
-                'C', 'D', 'D', 'D', 'D', 'E', 'E', 'E', 'E', 'E', 'E', 'E',
-                'E', 'E', 'E', 'E', 'E', 'F', 'F', 'G', 'G', 'G', 'H', 'H',
-                'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'J', 'K', 'L',
-                'L', 'L', 'L', 'M', 'M', 'N', 'N', 'N', 'N', 'N', 'N', 'O',
-                'O', 'O', 'O', 'O', 'O', 'O', 'O', 'P', 'P', 'Q', 'R', 'R',
-                'R', 'R', 'R', 'R', 'S', 'S', 'S', 'S', 'T', 'T', 'T', 'T',
-                'T', 'T', 'U', 'U', 'U', 'U', 'V', 'V', 'W', 'W', 'X', 'Y',
-                'Y', 'Z']
+LETTER_POOL = {
+    'A': 9, 
+    'B': 2, 
+    'C': 2, 
+    'D': 4, 
+    'E': 12, 
+    'F': 2, 
+    'G': 3, 
+    'H': 2, 
+    'I': 9, 
+    'J': 1, 
+    'K': 1, 
+    'L': 4, 
+    'M': 2, 
+    'N': 6, 
+    'O': 8, 
+    'P': 2, 
+    'Q': 1, 
+    'R': 6, 
+    'S': 4, 
+    'T': 6, 
+    'U': 4, 
+    'V': 2, 
+    'W': 2, 
+    'X': 1, 
+    'Y': 2, 
+    'Z': 1
+}
+
+HAND_SIZE = 10
+PILE_SIZE = len(LETTER_POOL)
+
+def make_new_draw_pile():
+    draw_pile = []
+    for letter, count in LETTER_POOL.items():
+        [draw_pile.append(letter)] * count
+    return draw_pile
+
+def draw_letters():
+    new_pile = make_new_draw_pile()
+    new_pile_len = PILE_SIZE
+    hand = []
+
+    for _ in range(HAND_SIZE):
+        hand.append(new_pile.pop(randint(0, new_pile_len - 1)))
+        new_pile_len -= 1
+
+    return hand
 
 def counting(count_what, in_what):
     total_count = 0
@@ -18,68 +57,38 @@ def counting(count_what, in_what):
 
     return total_count
 
-def draw_letters():
-    letters = []
-
-    for letter in range(10):
-        letters.append(LETTER_POOL[randint(0, 97)])
-    
-    index = 0
-    for letter in letters:
-        if (counting(letter, letters) > counting(letter, LETTER_POOL)):
-            letters[index] = LETTER_POOL[randint(0, 97)]
-        index += 1
-
-    return letters
-
-def word_as_list_and_all_caps(word):
-    word_all_caps = word.upper()
-    word_as_list = []
-    for letter in word_all_caps:
-        word_as_list.append(letter)
-    
-    return word_as_list
-
 def uses_available_letters(word, letter_bank):
-    word_chosen = word_as_list_and_all_caps(word)
-
-    for letter in word_chosen:
-        is_valid_word = True
-        if not (letter in letter_bank) or not (counting(letter, 
-                    letter_bank) <= counting(letter, word_chosen) <= 
-                    counting(letter, letter_bank)):
-            is_valid_word = False
+    if not word:
+        return False
     
-    return is_valid_word
-
-def length(object):
-    count = 0
-    for i in object:
-        count += 1
-    return count
+    for letter in word:
+        if letter.upper() in letter_bank and counting(letter.upper(), 
+                    word.upper()) <= counting(letter.upper(), letter_bank):
+            continue
+        else:
+            return False
+        
+    return True
 
 def score_word(word):
-    SCORE_CHART = {
-        1: ['A', 'E', 'I', 'O', 'U', 'L', 'N', 'R', 'S', 'T'], 
-        2: ['D', 'G'], 
-        3: ['B', 'C', 'M', 'P'], 
-        4: ['F', 'H', 'V', 'W', 'Y'], 
-        5: ['K'], 
-        8: ['J', 'X'], 
-        10: ['Q', 'Z']
-        }
-    word_chosen = word_as_list_and_all_caps(word)
-    total_score = 0
+    SCORE_CHART = { 
+        'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 
+        'I': 1, 'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3,
+        'Q': 10, 'R': 1, 'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8,
+        'Y': 4, 'Z': 10
+                    }
 
-    for word_letter in word_chosen:
-        for score, letter_list in SCORE_CHART.items():
-            for letter in letter_list:
-                if letter == word_letter:
-                    total_score += score
+    BONUS_MIN_LENGTH = 7
+    BONUS_POINTS = 8
+
+    total_score = 0
+    for letter in word:
+        if letter.upper() in SCORE_CHART:
+            total_score += SCORE_CHART[letter.upper()]
     
-    if length(word_chosen) >= 7:
-        total_score += 8
-    
+    if len(word) >= BONUS_MIN_LENGTH:
+        total_score += BONUS_POINTS
+
     return total_score
 
 def get_highest_word_score(word_list):
@@ -102,31 +111,22 @@ def get_highest_word_score(word_list):
 
     fewest_letters_word = high_score_words[0]
     for word in high_score_words:
-        if length(word) < length(fewest_letters_word):
+        if len(word) < len(fewest_letters_word):
             fewest_letters_word = word
 
     fewest_letter_words_list = []
     for word in high_score_words:
-        if length(word) == length(fewest_letters_word):
+        if len(word) == len(fewest_letters_word):
             fewest_letter_words_list.append(word)
     
     length_10_words = []
     for word in high_score_words:
-        if length(word) == 10:
+        if len(word) == 10:
             length_10_words.append(word)
 
-    if length(high_score_words) > 1:
-        for word in high_score_words:
-            if length(word) == 10 and length(length_10_words) == 1:
-                winning_word = word
-                break
-            elif length(word) == 10 and length(length_10_words) > 1:
-                winning_word = length_10_words[0]
-            elif length(fewest_letter_words_list) == 1:
-                winning_word = fewest_letters_word
-            elif length(fewest_letter_words_list) > 1:
-                winning_word = fewest_letter_words_list[0]
-    else:
-        winning_word = high_score_words[0]
+    if len(length_10_words) >= 1:
+        winning_word = length_10_words[0]
+    elif len(fewest_letter_words_list) >= 1:
+        winning_word = fewest_letter_words_list[0]
 
     return winning_word, winning_score
