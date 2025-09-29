@@ -30,22 +30,19 @@ LETTER_POOL = {
 }
 
 HAND_SIZE = 10
-PILE_SIZE = len(LETTER_POOL)
 
 def make_new_draw_pile():
     draw_pile = []
     for letter, count in LETTER_POOL.items():
-        [draw_pile.append(letter)] * count
+        draw_pile += [letter] * count
     return draw_pile
 
 def draw_letters():
     new_pile = make_new_draw_pile()
-    new_pile_len = PILE_SIZE
     hand = []
 
     for _ in range(HAND_SIZE):
-        hand.append(new_pile.pop(randint(0, new_pile_len - 1)))
-        new_pile_len -= 1
+        hand.append(new_pile.pop(randint(0, len(new_pile) - 1)))
 
     return hand
 
@@ -61,12 +58,12 @@ def uses_available_letters(word, letter_bank):
     if not word:
         return False
     
-    for letter in word:
-        if letter.upper() in letter_bank and counting(letter.upper(), 
-                    word.upper()) <= counting(letter.upper(), letter_bank):
-            continue
-        else:
+    word_upper = word.upper()
+    for letter in word_upper:
+        if counting(letter, word_upper) > counting(letter, letter_bank):
             return False
+        else:
+            continue
         
     return True
 
@@ -82,9 +79,10 @@ def score_word(word):
     BONUS_POINTS = 8
 
     total_score = 0
-    for letter in word:
-        if letter.upper() in SCORE_CHART:
-            total_score += SCORE_CHART[letter.upper()]
+    word_upper = word.upper()
+    for letter in word_upper:
+        if letter in SCORE_CHART:
+            total_score += SCORE_CHART[letter]
     
     if len(word) >= BONUS_MIN_LENGTH:
         total_score += BONUS_POINTS
@@ -124,9 +122,9 @@ def get_highest_word_score(word_list):
         if len(word) == 10:
             length_10_words.append(word)
 
-    if len(length_10_words) >= 1:
+    if length_10_words:
         winning_word = length_10_words[0]
-    elif len(fewest_letter_words_list) >= 1:
+    else:
         winning_word = fewest_letter_words_list[0]
 
     return winning_word, winning_score
